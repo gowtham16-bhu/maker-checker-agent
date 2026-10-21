@@ -1,0 +1,16 @@
+# maker-checker policy for OpenAI Codex. First matching rule wins.
+# Codex hooks can't "ask", so this policy only denies; everything else goes
+# through Codex's own approval settings.
+default = "allow"
+
+[[rules]]
+tool = "Bash"
+match = { command = { regex = '(\brm\s+-[a-zA-Z]*[rf]|\bgit\s+push\b.*(--force|\s-f\b)|\bcurl\b|\bwget\b|\bscp\b|\bssh\b|\|\s*(ba|z)?sh\b|\bsudo\b)' } }
+decision = "deny"
+reason = "destructive, privileged or network command"
+
+[[rules]]
+tool = ["Bash", "apply_patch"]
+match = { command = { regex = '(\.env\b|id_rsa|\.pem\b|credentials)' } }
+decision = "deny"
+reason = "secret files are off-limits"

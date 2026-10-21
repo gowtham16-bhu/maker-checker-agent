@@ -1,25 +1,32 @@
-"""Maker-checker for AI agents: the LLM proposes, plain code approves,
-a sandboxed executor runs, and an append-only log records everything."""
+"""maker-checker: a framework-agnostic policy gate for AI agent tool calls.
 
+The LLM proposes, plain code approves (or asks a human), only approved calls
+run, and a tamper-evident log records every step.
+"""
+
+from .approvers import cli_approver, deny_all
+from .checker import Blocked, Checker
 from .doer import Doer, NotApproved
 from .gatekeeper import Gatekeeper
-from .intents import Decision, Email, Intent
-from .pipeline import MakerCheckerAgent, NaiveAgent, Outcome, build_agent
-from .planner import ClaudePlanner, ScriptedPlanner
-from .recorder import Recorder
+from .intents import Decision, Intent, Verdict
+from .policy import Policy, Rule
+from .recorder import Recorder, verify_log
+
+__version__ = "0.2.0"
 
 __all__ = [
-    "ClaudePlanner",
+    "Blocked",
+    "Checker",
     "Decision",
     "Doer",
-    "Email",
     "Gatekeeper",
     "Intent",
-    "MakerCheckerAgent",
-    "NaiveAgent",
     "NotApproved",
-    "Outcome",
+    "Policy",
     "Recorder",
-    "ScriptedPlanner",
-    "build_agent",
+    "Rule",
+    "Verdict",
+    "cli_approver",
+    "deny_all",
+    "verify_log",
 ]

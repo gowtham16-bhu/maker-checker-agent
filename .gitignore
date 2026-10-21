@@ -1,4 +1,6 @@
 __pycache__/
 *.pyc
 .venv/
-demo_output/
+*.egg-info/
+outbox/
+maker-checker-audit.jsonl

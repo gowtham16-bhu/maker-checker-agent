@@ -1,14 +1,18 @@
 [project]
-name = "maker-checker-agent"
-version = "0.1.0"
-description = "Maker-checker (separation of duties) for AI agents: the LLM proposes, code approves."
+name = "maker-checker"
+version = "0.2.0"
+description = "Framework-agnostic policy gate for AI agent tool calls: the LLM proposes, plain code approves."
 readme = "README.md"
 license = { text = "MIT" }
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = []
+keywords = ["ai-agents", "llm", "security", "prompt-injection", "guardrails", "policy"]
 
-[project.optional-dependencies]
-llm = ["anthropic>=2.1"]
+[project.scripts]
+maker-checker = "maker_checker.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/gowtham16-bhu/maker-checker-agent"
 
 [build-system]
 requires = ["setuptools>=68"]

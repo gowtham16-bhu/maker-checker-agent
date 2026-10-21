@@ -1,0 +1,41 @@
+# Policy for a customer-support agent. First matching rule wins.
+default = "deny"
+
+[[rules]]
+tool = "send_email"
+match = { to = { equals = "$context.sender" } }
+decision = "allow"
+reason = "replying to the person who wrote in"
+
+[[rules]]
+tool = "send_email"
+match = { to = { regex = '@acme\.com$' } }
+decision = "allow"
+reason = "internal email"
+
+[[rules]]
+tool = "send_email"
+decision = "deny"
+reason = "can only email the sender or acme.com staff"
+
+[[rules]]
+tool = "issue_refund"
+match = { amount = { max = 100 } }
+decision = "allow"
+reason = "small refund"
+
+[[rules]]
+tool = "issue_refund"
+decision = "ask"
+reason = "refunds over $100 need a human"
+
+[[rules]]
+tool = "export_customer_data"
+match = { destination = { regex = '@acme\.com$' } }
+decision = "ask"
+reason = "customer data export, even internally, needs a human"
+
+[[rules]]
+tool = "export_customer_data"
+decision = "deny"
+reason = "customer data never leaves acme.com"

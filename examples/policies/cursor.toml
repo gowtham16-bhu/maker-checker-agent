@@ -1,0 +1,14 @@
+# maker-checker policy for Cursor. First matching rule wins.
+# Cursor's preToolUse doesn't enforce "ask", so this policy only denies.
+default = "allow"
+
+[[rules]]
+tool = "Shell"
+match = { command = { regex = '(\brm\s+-[a-zA-Z]*[rf]|\bgit\s+push\b.*(--force|\s-f\b)|\bcurl\b|\bwget\b|\bscp\b|\bssh\b|\|\s*(ba|z)?sh\b|\bsudo\b)' } }
+decision = "deny"
+reason = "destructive, privileged or network command"
+
+[[rules]]
+tool = "Delete"
+decision = "deny"
+reason = "file deletion is off for agents"

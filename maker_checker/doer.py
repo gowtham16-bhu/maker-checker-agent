@@ -1,13 +1,14 @@
 """Role 3: the Doer (the executor).
 
-No reasoning. It runs an action only if it carries a valid, unused token
-for exactly that action, and the tools only touch a sandbox folder.
+No reasoning. It runs an action only with a valid, unused token for exactly
+that action.
 """
 
 from __future__ import annotations
 
 import hmac
-from typing import Callable
+import threading
+from typing import Any, Callable
 
 from .gatekeeper import sign
 from .intents import Intent
@@ -18,20 +19,24 @@ class NotApproved(Exception):
 
 
 class Doer:
-    def __init__(self, secret: bytes, tools: dict[str, Callable[..., str]]):
+    def __init__(self, secret: bytes):
         self._secret = secret
-        self._tools = tools
         self._used_nonces: set[str] = set()
+        self._lock = threading.Lock()
 
-    def run(self, intent: Intent, token: str | None) -> str:
+    def redeem(self, intent: Intent, token: str | None) -> None:
+        """Check the token and burn it. Raises NotApproved if it isn't valid."""
         if not token or "." not in token:
             raise NotApproved("no approval token")
 
         nonce, signature = token.split(".", 1)
         if not hmac.compare_digest(signature, sign(self._secret, nonce, intent)):
             raise NotApproved("token doesn't match this exact action")
-        if nonce in self._used_nonces:
-            raise NotApproved("token was already used")
-        self._used_nonces.add(nonce)
+        with self._lock:
+            if nonce in self._used_nonces:
+                raise NotApproved("token was already used")
+            self._used_nonces.add(nonce)
 
-        return self._tools[intent.tool](**intent.args)
+    def run(self, intent: Intent, token: str | None, call: Callable[[], Any]) -> Any:
+        self.redeem(intent, token)
+        return call()

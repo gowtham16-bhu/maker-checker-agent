@@ -1,0 +1,37 @@
+# maker-checker policy for Claude Code. First matching rule wins.
+# "ask" shows Claude Code's normal permission prompt.
+default = "ask"
+
+[[rules]]
+tool = ["Read", "Write", "Edit"]
+match = { file_path = { regex = '(^|/)(\.env[^/]*|id_rsa[^/]*|[^/]*\.pem|credentials[^/]*)$' } }
+decision = "deny"
+reason = "secret files are off-limits"
+
+[[rules]]
+tool = ["Read", "Write", "Edit"]
+match = { file_path = { within = "$context.cwd" } }
+decision = "allow"
+reason = "inside the project"
+
+[[rules]]
+tool = ["Write", "Edit"]
+decision = "deny"
+reason = "writes must stay inside the project"
+
+[[rules]]
+tool = ["Glob", "Grep"]
+decision = "allow"
+reason = "read-only search"
+
+[[rules]]
+tool = "Bash"
+match = { command = { regex = '(\brm\s+-[a-zA-Z]*[rf]|\bgit\s+push\b.*(--force|\s-f\b)|\bcurl\b|\bwget\b|\bscp\b|\bssh\b|\|\s*(ba|z)?sh\b|\bsudo\b)' } }
+decision = "deny"
+reason = "destructive, privileged or network command"
+
+[[rules]]
+tool = "Bash"
+match = { command = { regex = '^(ls|pwd|cat|head|tail|wc|git (status|diff|log|show)|pytest|npm test|go test|cargo test)\b', not_regex = '[;&|`$<>]' } }
+decision = "allow"
+reason = "read-only or test command"
