@@ -66,6 +66,17 @@ class OpenAIAgentsTest(unittest.TestCase):
         self.assertTrue(blocked.startswith("BLOCKED"))
 
 
+@unittest.skipUnless(installed("ollama"), "ollama not installed")
+class OllamaTest(unittest.TestCase):
+    def test_tool_schema_from_guarded_function(self):
+        from ollama._utils import convert_function_to_tool
+
+        _, send_email = make_tool()
+        schema = convert_function_to_tool(send_email).model_dump(exclude_none=True)
+        self.assertEqual(schema["function"]["name"], "send_email")
+        self.assertEqual(set(schema["function"]["parameters"]["properties"]), {"to", "subject", "body"})
+
+
 @unittest.skipUnless(installed("anthropic"), "anthropic not installed")
 class ClaudeToolRunnerTest(unittest.TestCase):
     def test_beta_tool(self):
